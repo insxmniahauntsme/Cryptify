@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <RootNamespace>Cryptify</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CryptifyAPI\CryptifyAPI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Views\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    </ItemGroup>
+
+</Project>
