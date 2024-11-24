@@ -2,7 +2,7 @@ namespace CryptifyAPI.Models
 {
 	public class Currency
 	{
-		public string Id { get; set; } 
+		public string Id { get; set; }
 		public string Symbol { get; set; } 
 		public string Name { get; set; }
 		public string Image { get; set; }
@@ -28,5 +28,9 @@ namespace CryptifyAPI.Models
 		public DateTime AtlDate { get; set; }
 		public Roi? Roi { get; set; } 
 		public DateTime LastUpdated { get; set; }
+
+		public Currency()
+		{
+		}
 	}
 }

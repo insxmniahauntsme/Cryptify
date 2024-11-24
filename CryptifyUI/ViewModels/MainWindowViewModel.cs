@@ -26,7 +26,6 @@ namespace Cryptify.ViewModels
 			{
 				Currencies.Add(currency);
 			}
-			MessageBox.Show($"Loaded {Currencies.Count} currencies.");
 
 		}
 	}

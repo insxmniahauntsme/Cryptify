@@ -24,4 +24,10 @@
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="Resources\cryptify-logo.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

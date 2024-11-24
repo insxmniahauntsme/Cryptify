@@ -5,8 +5,77 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cryptify"
         mc:Ignorable="d"
-        Title="Cryptify" Height="450" Width="800">
-    <Grid>
-        <DataGrid ItemsSource="{Binding Currencies}" AutoGenerateColumns="True" />
+        Title="Cryptify" Height="450" Width="800"
+        WindowStyle="None"    
+        AllowsTransparency="True"
+        BorderBrush="{StaticResource BackgroundBrush}" 
+        BorderThickness="1"
+        ResizeMode="CanResize"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    
+    <Grid Background="{StaticResource BackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/> 
+            <RowDefinition Height="*"/> 
+        </Grid.RowDefinitions>
+        
+        <Border Grid.ColumnSpan="2" Background="{StaticResource BorderBrush}">
+            <Grid HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                            Margin="0,0,0,0">
+                    <Image x:Name="Logo" Source="/Resources/cryptify-logo.png" Width="30" Height="30" 
+                           Margin="0,0,5,0"/>
+                    <Label Foreground="Gray" 
+                           FontWeight="SemiBold" Content="Cryptify" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <Button Margin="5,5,0,0" 
+                            Style="{StaticResource WindowControlButtons}" Content="–" 
+                            Click="Minimize_Click" />
+            
+                    <!-- Restore/Maximize Button -->
+                    <Button Margin="0,4,0,0" 
+                            Style="{StaticResource WindowControlButtons}" Content="□" 
+                            Click="Restore_Click"/>
+            
+                    <!-- Close Button -->
+                    <Button Margin="0,5,5,0" 
+                            Style="{StaticResource CloseButton}" Content="╳" 
+                            Click="Close_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <StackPanel Grid.Row="1">
+            <Label Foreground="White" FontSize="20" Margin="10,0,0,0">Top 10 currencies</Label>
+            
+            <DataGrid RowBackground="Transparent"
+                      ItemsSource="{Binding Currencies}"
+                      Background="{StaticResource BorderBrush}"
+                      AutoGenerateColumns="False"
+                      Margin="10"
+                      HeadersVisibility="Column"
+                      AlternatingRowBackground="{x:Null}"
+                      SelectionUnit="CellOrRowHeader"
+                      GridLinesVisibility="None"
+                      IsReadOnly="True"
+                      VerticalGridLinesBrush="Transparent"
+                      HorizontalGridLinesBrush="Transparent">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding Image}" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+                    <DataGridTextColumn Header="Price" Binding="{Binding CurrentPrice, StringFormat=C}" Width="Auto" />
+                    <DataGridTextColumn Header="Market Cap ($)" Binding="{Binding MarketCap, StringFormat=N0}" Width="*" />
+                    <DataGridTextColumn Header="Volume" Binding="{Binding TotalVolume, StringFormat=C}"></DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+        
     </Grid>
 </Window>

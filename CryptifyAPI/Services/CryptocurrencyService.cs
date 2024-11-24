@@ -23,7 +23,6 @@ public class CryptocurrencyService : ICryptocurrencyService
 		if (!response.IsSuccessStatusCode) return new List<Currency>();
 
 		string responseString = await response.Content.ReadAsStringAsync();
-		Console.WriteLine(responseString);
 
 		var options = new JsonSerializerOptions
 		{
@@ -31,7 +30,7 @@ public class CryptocurrencyService : ICryptocurrencyService
 			PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
 		};
 
-		var currencies = JsonSerializer.Deserialize<List<Currency>>(responseString, options);
+		var currencies = JsonSerializer.Deserialize<List<Currency>>(responseString, options)!.OrderByDescending(c => c.CurrentPrice).ToList();
 		return currencies ?? new List<Currency>();
 	}
 
