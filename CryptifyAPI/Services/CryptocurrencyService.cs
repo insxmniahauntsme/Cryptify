@@ -15,8 +15,18 @@ public class CryptocurrencyService : ICryptocurrencyService
 	public async Task<List<Currency>> GetTopTenCurrencies()
 	{
 		var client = _httpClientFactory.CreateClient("CoinGeckoClient");
-
-		HttpResponseMessage response = await client.GetAsync("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
+		
+		HttpResponseMessage response = new HttpResponseMessage();
+		
+		try
+		{
+			response = await client.GetAsync("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
+		}
+		catch (HttpRequestException e)
+		{
+			Console.WriteLine(e);
+			throw;
+		}
 
 		Console.WriteLine(response.StatusCode);
 		

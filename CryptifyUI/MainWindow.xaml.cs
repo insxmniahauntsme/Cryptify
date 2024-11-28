@@ -1,14 +1,9 @@
-﻿using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Cryptify.ViewModels;
+using Cryptify.Services;
+using Cryptify.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cryptify;
 
@@ -17,36 +12,18 @@ namespace Cryptify;
 /// </summary>
 public partial class MainWindow : Window
 {
-	public MainWindow(MainWindowViewModel viewModel)
+	private readonly IServiceProvider _serviceProvider;
+	private readonly INavigationService _navigationService;
+	public MainWindow(IServiceProvider serviceProvider, INavigationService navigationService)
 	{
 		InitializeComponent();
-		
-		DataContext = viewModel;
-	}
-	
-	private void Minimize_Click(object sender, RoutedEventArgs e)
-	{
-		WindowState = WindowState.Minimized;
+		_serviceProvider = serviceProvider;
+		_navigationService = navigationService;
+
+		MainFrame.Navigate(_serviceProvider.GetRequiredService<MainPage>());
 	}
 
-	private void Restore_Click(object sender, RoutedEventArgs e)
-	{
-		if (WindowState == WindowState.Maximized)
-		{
-			WindowState = WindowState.Normal;
-		}
-		else
-		{
-			WindowState = WindowState.Maximized;
-		}
-	}
-
-	private void Close_Click(object sender, RoutedEventArgs e)
-	{
-		Close();
-	}
-	
-	private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+	private void DragWindow(object sender, MouseButtonEventArgs e)
 	{
 		if (e.ButtonState == MouseButtonState.Pressed)
 		{
@@ -54,5 +31,13 @@ public partial class MainWindow : Window
 		}
 	}
 
+	private void GoBack(object sender, RoutedEventArgs e)
+	{
+		_navigationService.GoBack();
+	}
 
+	private void GoForward(object sender, RoutedEventArgs e)
+	{
+		_navigationService.GoForward();
+	}
 }

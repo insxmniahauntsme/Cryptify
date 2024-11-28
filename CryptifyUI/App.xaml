@@ -21,7 +21,8 @@
             <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}" />
             <Setter Property="FontFamily" Value="Segoe UI" />
         </Style>
-
+        
+        <!-- Window Control Buttons -->
         <Style x:Key="WindowControlButtons" TargetType="Button">
             <Setter Property="Width" Value="35"></Setter>
             <Setter Property="Height" Value="25"></Setter>
@@ -34,6 +35,8 @@
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="HorizontalAlignment" Value="Right" />
             <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -48,7 +51,7 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Gray"/>
+                    <Setter Property="Background" Value="#20A9A9A9"/>
                     <Setter Property="Foreground" Value="White"/>
                 </Trigger>
             </Style.Triggers>
@@ -58,6 +61,7 @@
             <Setter Property="Foreground" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
             <Setter Property="RowBackground" Value="{StaticResource BackgroundBrush}" />
+            <Setter Property="AlternatingRowBackground" Value="{x:Null}"></Setter>
             <Setter Property="GridLinesVisibility" Value="Horizontal" />
             <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderBrush}" />
             <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BorderBrush}" />
@@ -91,14 +95,48 @@
             <Setter Property="Padding" Value="4,2" />
         </Style>
         
+        <!-- Specific Styles -->
+        
+        <!-- Close Button -->
         <Style x:Key="CloseButton" TargetType="Button" BasedOn="{StaticResource WindowControlButtons}">
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Red"></Setter>
+                    <Setter Property="Background" Value="#85FF0000">
+                    </Setter>
                 </Trigger>
             </Style.Triggers>
-            <Setter Property="FontSize" Value="10"></Setter>
+            <Setter Property="FontSize" Value="10"/>
         </Style>
+        
+        <!-- Navigation Buttons -->
+        <Style x:Key="NavigationButtons" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="4"> 
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#20A9A9A9"></Setter>
+                    <Setter Property="Foreground" Value="White"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
         
     </Application.Resources>
 </Application>

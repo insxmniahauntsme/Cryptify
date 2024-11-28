@@ -7,14 +7,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
         <RootNamespace>Cryptify</RootNamespace>
+        <ApplicationIcon>Resources\cryptify.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\CryptifyAPI\CryptifyAPI.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Views\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -28,6 +25,14 @@
       <Content Include="Resources\cryptify-logo.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="MainWindow.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
 </Project>
