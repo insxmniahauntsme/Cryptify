@@ -3,23 +3,75 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:Cryptify.Views"
-      xmlns:vm="clr-namespace:Cryptify.ViewModels"
-      xmlns:commands="clr-namespace:Cryptify.Commands"
-      mc:Ignorable="d">
-    
+      xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+      xmlns:converters="clr-namespace:Cryptify.Converters"
+      mc:Ignorable="d"
+      Background="{StaticResource BackgroundBrush}">
     <Page.Resources>
-        <vm:CurrencyDetailsPageViewModel x:Key="ViewModel"/>
+        <converters:NumberConverter x:Key="NumberConverter"/>
     </Page.Resources>
-    
-    <Page.DataContext>
-        <StaticResource ResourceKey="ViewModel"></StaticResource>
-    </Page.DataContext>
-    
     <Grid>
-    
-        <Label Content="{Binding Currency.Name}" 
-               Background="Black" Height="50" Width="150" Foreground="White" FontSize="20"/>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="7*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Top Section -->
+        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="10,10,5,0">
+            <Border Background="{StaticResource HoverGrayBrush}" CornerRadius="10" 
+                    Margin="0,0,10,0" Padding="10">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                    <StackPanel Margin="0,0,5,0">
+                        <TextBlock Text="{Binding Currency.UpperSymbol}" FontSize="16" Foreground="White"/>
+                        <TextBlock Text="{Binding Currency.Name}" FontSize="14" FontWeight="SemiBold" 
+                               Foreground="Gray"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,5,0">
+                        <TextBlock Text="Price change (24h)" FontSize="16" Foreground="White"/>
+                        <TextBlock Text="{Binding Currency.PriceChange24H, Converter={StaticResource NumberConverter}}" 
+                               FontSize="14" FontWeight="SemiBold" Foreground="Gray"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,5,0">
+                        <TextBlock Text="Volume" FontSize="16" Foreground="White"/>
+                        <TextBlock Text="{Binding Currency.TotalVolume, Converter={StaticResource NumberConverter}}" 
+                               FontSize="14" FontWeight="SemiBold" Foreground="Gray"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Button Content="Convert" Style="{StaticResource ConvertButton}" Margin="5,0,0,0"/>
+        </StackPanel>
+
+        <!-- Chart Section -->
+        <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource HoverGrayBrush}" CornerRadius="10" Margin="10">
+            <lvc:CartesianChart Series="{Binding PriceChangeSeries}"
+                                XAxes="{Binding XAxes}"
+                                YAxes="{Binding YAxes}"
+                                LegendPosition="Hidden"/>
+        </Border>
+
+        <!-- Market Data Section -->
+        <Border Grid.Column="1" Grid.Row="1" Background="{StaticResource HoverGrayBrush}" CornerRadius="10" Margin="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Label Content="Best markets:" FontSize="22" Foreground="White" Margin="10,10,10,10"/>
+                <DataGrid Grid.Row="1" Background="Transparent" ItemsSource="{Binding Markets}"
+                          Foreground="White" HeadersVisibility="None">
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Width" Value="Auto"></Setter>
+                            <Setter Property="Border.BorderThickness" Value="1"/>
+                            <Setter Property="Border.BorderBrush" Value="LightGray"/>
+                        </Style>
+                    </DataGrid.CellStyle>
+                </DataGrid>
+            </Grid>
+        </Border>
     </Grid>
 </Page>

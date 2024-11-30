@@ -1,9 +1,14 @@
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text.Json.Serialization;
+
 namespace CryptifyAPI.Models
 {
 	public class Currency
 	{
 		public string Id { get; set; }
-		public string Symbol { get; set; } 
+		public string Symbol { get; set; }
+		public string UpperSymbol => Symbol.ToUpper();
 		public string Name { get; set; }
 		public string Image { get; set; }
 		public double CurrentPrice { get; set; }
@@ -13,6 +18,7 @@ namespace CryptifyAPI.Models
 		public long TotalVolume { get; set; }  
 		public double High24H { get; set; }
 		public double Low24H { get; set; }
+		[JsonPropertyName("price_change_24h")]
 		public double PriceChange24H { get; set; }
 		public double PriceChangePercentage24H { get; set; }
 		public double MarketCapChange24H { get; set; }

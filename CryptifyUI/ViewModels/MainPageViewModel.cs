@@ -17,8 +17,6 @@ namespace Cryptify.ViewModels
 		public ICommand CurrencyClickCommand { get; }
 		public ObservableCollection<Currency> Currencies { get; set; }
 		
-		public Currency? SelectedCurrency { get; set; }
-
 		public MainPageViewModel(ICryptocurrencyService cryptocurrencyService, IServiceProvider serviceProvider, INavigationService navigationService)
 		{
 			_cryptocurrencyService = cryptocurrencyService;
@@ -33,7 +31,7 @@ namespace Cryptify.ViewModels
 		{
 			try
 			{
-				List<Currency>? currencies = await _cryptocurrencyService.GetTopTenCurrencies();
+				List<Currency>? currencies = await _cryptocurrencyService.GetTopTenCurrenciesAsync();
 				foreach (var currency in currencies)
 				{
 					Currencies.Add(currency);

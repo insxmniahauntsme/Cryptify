@@ -11,6 +11,7 @@
         AllowsTransparency="True"
         BorderBrush="{StaticResource BackgroundBrush}" 
         BorderThickness="1"
+        Background="{StaticResource BackgroundBrush}"
         ResizeMode="CanResize"
         MouseLeftButtonDown="DragWindow">
     <Grid>
@@ -19,7 +20,7 @@
             <RowDefinition Height="*"/> 
         </Grid.RowDefinitions>
         <!-- Window Control Buttons -->
-        <Border Grid.ColumnSpan="2" Background="{StaticResource BorderBrush}">
+        <Border Grid.ColumnSpan="2" Background="{StaticResource BorderBrush}" >
             <Grid HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                     <Image x:Name="Logo" Source="/Resources/cryptify-logo.png" Width="30" Height="30" 

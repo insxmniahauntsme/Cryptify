@@ -15,6 +15,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="LiveChartsCore" Version="2.0.0-rc4.5" />
+      <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-rc4.5" />
+      <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc4.5" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
@@ -33,6 +36,10 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Converters\" />
     </ItemGroup>
 
 </Project>

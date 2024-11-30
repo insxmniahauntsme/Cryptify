@@ -12,7 +12,7 @@ public class CryptocurrencyService : ICryptocurrencyService
 		_httpClientFactory = httpClientFactory;
 	}
 
-	public async Task<List<Currency>> GetTopTenCurrencies()
+	public async Task<List<Currency>> GetTopTenCurrenciesAsync()
 	{
 		var client = _httpClientFactory.CreateClient("CoinGeckoClient");
 		
@@ -44,5 +44,37 @@ public class CryptocurrencyService : ICryptocurrencyService
 		return currencies ?? new List<Currency>();
 	}
 
-	
+	public async Task<List<Market>> GetTopMarketsAsync(string currencyId)
+	{
+		var baseUrl = "https://api.coingecko.com/api/v3/coins";
+		var endpoint = $"{baseUrl}/{currencyId}/tickers?order=volume_desc&per_page=10";
+
+		using (HttpClient client = new HttpClient())
+		{
+			var response = await client.GetAsync(endpoint);
+
+			if (response.IsSuccessStatusCode)
+			{
+				var jsonResponse = await response.Content.ReadAsStringAsync();
+				var jsonDocument = JsonDocument.Parse(jsonResponse);
+				var tickersArray = jsonDocument.RootElement.GetProperty("tickers").EnumerateArray();
+
+				var tickers = tickersArray
+					.Select(ticker => new Market
+					{
+						Name = ticker.GetProperty("market").GetProperty("name").GetString() ?? "Undefined",
+						Price = ticker.TryGetProperty("last", out var priceElement) ? priceElement.GetDecimal() : 0,
+						Volume = ticker.TryGetProperty("volume", out var volumeElement) ? volumeElement.GetDecimal() : 0,
+						TradeUrl = ticker.GetProperty("trade_url").GetString() ?? "N/A"
+					})
+					.ToList();
+
+				return tickers;
+			}
+			else
+			{
+				throw new Exception("Failed to fetch top markets.");
+			}
+		}
+	}
 }

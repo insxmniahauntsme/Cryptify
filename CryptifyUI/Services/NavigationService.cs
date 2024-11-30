@@ -14,7 +14,6 @@ public class NavigationService : INavigationService
 	public void NavigateTo(Page page)
 	{
 		_frame?.Navigate(page);
-		Console.WriteLine($"Navigating to page: {page.GetType().Name}");
 	}
 
 	public void GoBack()
