@@ -1,42 +1,72 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using Cryptify.Services;
 using Cryptify.ViewModels;
 using Cryptify.Views;
-using CryptifyAPI.Configuration;
+using CryptifyAPI.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
- 
+
 namespace Cryptify;
 
 public partial class App : Application
 {
-	public IServiceProvider? Services { get; private set; }
+    public IServiceProvider? Services { get; private set; }
 
-	protected override void OnStartup(StartupEventArgs e)
-	{
-		base.OnStartup(e);
+    public App()
+    {
+        var serviceCollection = new ServiceCollection();
+        ConfigureServices(serviceCollection);
+        AddCryptifyServices(serviceCollection);
 
-		var serviceCollection = new ServiceCollection();
-		serviceCollection.AddCryptifyServices();
-		serviceCollection.AddSingleton<Frame>(serviceProvider =>
-		{
-			var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
-			return mainWindow.MainFrame;
-		});
-		serviceCollection.AddSingleton<INavigationService, NavigationService>();
-		serviceCollection.AddTransient<MainPageViewModel>();
-		serviceCollection.AddTransient<MainPage>();
-		serviceCollection.AddTransient<CurrencyDetailsPageViewModel>();
-		serviceCollection.AddTransient<CurrencyDetailsPage>();
-		serviceCollection.AddTransient<MainWindow>();
-		Services = serviceCollection.BuildServiceProvider();
+        Services = serviceCollection.BuildServiceProvider();
+    }
 
-		var mainWindow = Services.GetRequiredService<MainWindow>();
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
 
-		var frame = mainWindow.MainFrame;
-		var navigationService = Services.GetRequiredService<INavigationService>() as NavigationService;
-		navigationService?.SetFrame(frame);
+        if (Services == null)
+            throw new Exception("Services are not initialized.");
 
-		mainWindow.Show();
-	}
+        var navigationService = Services.GetRequiredService<INavigationService>() as NavigationService;
+        var mainWindow = Services.GetRequiredService<MainWindow>();
+
+        navigationService?.SetFrame(mainWindow.MainFrame);
+
+        mainWindow.Show();
+    }
+
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddTransient<MainPageViewModel>();
+        services.AddTransient<CurrencyDetailsPageViewModel>();
+        services.AddTransient<MainPage>();
+        services.AddTransient<CurrencyDetailsPage>();
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddTransient<MainWindowViewModel>();
+        services.AddSingleton<MainWindow>();
+    }
+
+    private static void AddCryptifyServices(IServiceCollection services)
+    {
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        var configuration = builder.Build();
+
+        services.AddSingleton<IConfiguration>(configuration);
+
+        services.AddHttpClient("CoinGeckoClient", client =>
+        {
+            var baseUrl = configuration.GetSection("API").GetValue<string>("base-url");
+            if (string.IsNullOrEmpty(baseUrl))
+                throw new Exception("Base URL is not configured in appsettings.json.");
+
+            client.BaseAddress = new Uri(baseUrl);
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            client.DefaultRequestHeaders.Add("User-Agent", "Cryptify");
+        });
+
+        services.AddTransient<ICryptocurrencyService, CryptocurrencyService>();
+    }
 }

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Cryptify.Commands;
 using Cryptify.Services;
 using CryptifyAPI.Models;
 using CryptifyAPI.Services;
@@ -61,7 +62,6 @@ namespace Cryptify.ViewModels
                 new Axis
                 {
                     Labels = Enumerable.Range(1, 24).Select(hour => hour + "h").ToArray(),
-                    //Name = "Hours",
                     LabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.White),
                     TextSize = 12,
                     NamePaint = new SolidColorPaint(SkiaSharp.SKColors.LightGray),
@@ -73,7 +73,6 @@ namespace Cryptify.ViewModels
             {
                 new Axis
                 {
-                    //Name = "Price",
                     LabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.White),
                     TextSize = 12,
                     NamePaint = new SolidColorPaint(SkiaSharp.SKColors.LightGray),

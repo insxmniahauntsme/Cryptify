@@ -1,80 +1,82 @@
 using System.Text.Json;
 using CryptifyAPI.Models;
+using Microsoft.Extensions.Configuration;
 
-namespace CryptifyAPI.Services;
-
-public class CryptocurrencyService : ICryptocurrencyService
+namespace CryptifyAPI.Services
 {
-	private readonly IHttpClientFactory _httpClientFactory;
+    public class CryptocurrencyService : ICryptocurrencyService
+    {
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
+        public CryptocurrencyService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        {
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
+        }
 
-	public CryptocurrencyService(IHttpClientFactory httpClientFactory)
-	{
-		_httpClientFactory = httpClientFactory;
-	}
+        public async Task<List<Currency>> GetTopTenCurrenciesAsync()
+        {
+            var client = _httpClientFactory.CreateClient("CoinGeckoClient");
+            var response = await GetApiResponseAsync(client, "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
 
-	public async Task<List<Currency>> GetTopTenCurrenciesAsync()
-	{
-		var client = _httpClientFactory.CreateClient("CoinGeckoClient");
-		
-		HttpResponseMessage response = new HttpResponseMessage();
-		
-		try
-		{
-			response = await client.GetAsync("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
-		}
-		catch (HttpRequestException e)
-		{
-			Console.WriteLine(e);
-			throw;
-		}
+            if (!response.IsSuccessStatusCode)
+                return new List<Currency>();
 
-		Console.WriteLine(response.StatusCode);
-		
-		if (!response.IsSuccessStatusCode) return new List<Currency>();
+            var currencies = await DeserializeJsonAsync<List<Currency>>(response.Content);
+            return currencies?.OrderByDescending(c => c.CurrentPrice).ToList() ?? new List<Currency>();
+        }
 
-		string responseString = await response.Content.ReadAsStringAsync();
+        public async Task<List<Market>> GetTopMarketsAsync(string currencyId)
+        {
+            var baseUrl = "https://api.coingecko.com/api/v3/coins";
+            var endpoint = $"{baseUrl}/{currencyId}/tickers?per_page=6&page=1";
 
-		var options = new JsonSerializerOptions
-		{
-			PropertyNameCaseInsensitive = true,
-			PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-		};
+            var response = await GetApiResponseAsync(new HttpClient(), endpoint);
 
-		var currencies = JsonSerializer.Deserialize<List<Currency>>(responseString, options)!.OrderByDescending(c => c.CurrentPrice).ToList();
-		return currencies ?? new List<Currency>();
-	}
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Failed to fetch top markets.");
 
-	public async Task<List<Market>> GetTopMarketsAsync(string currencyId)
-	{
-		var baseUrl = "https://api.coingecko.com/api/v3/coins";
-		var endpoint = $"{baseUrl}/{currencyId}/tickers?order=volume_desc&per_page=10";
+            var tickers = await DeserializeJsonAsync<JsonDocument>(response.Content);
+            var tickersArray = tickers.RootElement.GetProperty("tickers").EnumerateArray();
 
-		using (HttpClient client = new HttpClient())
-		{
-			var response = await client.GetAsync(endpoint);
+            return tickersArray.Take(6).Select(ticker => new Market
+            {
+                Name = ticker.GetProperty("market").GetProperty("name").GetString() ?? "Undefined",
+                Base = ticker.GetProperty("base").GetString() ?? "Undefined",
+                Target = ticker.GetProperty("target").GetString() ?? "Undefined",
+                Price = ticker.TryGetProperty("last", out var priceElement) ? priceElement.GetDecimal() : 0,
+                TradeUrl = ticker.GetProperty("trade_url").GetString() ?? "N/A"
+            }).OrderByDescending(m => m.Price).ToList();
+        }
 
-			if (response.IsSuccessStatusCode)
-			{
-				var jsonResponse = await response.Content.ReadAsStringAsync();
-				var jsonDocument = JsonDocument.Parse(jsonResponse);
-				var tickersArray = jsonDocument.RootElement.GetProperty("tickers").EnumerateArray();
+        public async Task<Currency> GetCurrencyAsync(string currencyId)
+        {
+            return new Currency();
+        }
 
-				var tickers = tickersArray
-					.Select(ticker => new Market
-					{
-						Name = ticker.GetProperty("market").GetProperty("name").GetString() ?? "Undefined",
-						Price = ticker.TryGetProperty("last", out var priceElement) ? priceElement.GetDecimal() : 0,
-						Volume = ticker.TryGetProperty("volume", out var volumeElement) ? volumeElement.GetDecimal() : 0,
-						TradeUrl = ticker.GetProperty("trade_url").GetString() ?? "N/A"
-					})
-					.ToList();
+        private async Task<HttpResponseMessage> GetApiResponseAsync(HttpClient client, string url)
+        {
+            try
+            {
+                return await client.GetAsync(url);
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine(e);
+                throw new Exception("Error during API call.", e);
+            }
+        }
 
-				return tickers;
-			}
-			else
-			{
-				throw new Exception("Failed to fetch top markets.");
-			}
-		}
-	}
+        private async Task<T> DeserializeJsonAsync<T>(HttpContent content)
+        {
+            string responseString = await content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+            };
+
+            return JsonSerializer.Deserialize<T>(responseString, options);
+        }
+    }
 }

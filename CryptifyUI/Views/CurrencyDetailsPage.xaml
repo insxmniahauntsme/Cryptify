@@ -16,37 +16,46 @@
             <RowDefinition Height="7*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7*"/>
             <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
 
         <!-- Top Section -->
-        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="10,10,5,0">
+        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="10,10,20,0">
             <Border Background="{StaticResource HoverGrayBrush}" CornerRadius="10" 
                     Margin="0,0,10,0" Padding="10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                    <StackPanel Margin="0,0,5,0">
+                    <StackPanel Margin="0,0,50,0">
                         <TextBlock Text="{Binding Currency.UpperSymbol}" FontSize="16" Foreground="White"/>
                         <TextBlock Text="{Binding Currency.Name}" FontSize="14" FontWeight="SemiBold" 
-                               Foreground="Gray"/>
+                                   Foreground="Gray"/>
                     </StackPanel>
-                    <StackPanel Margin="0,0,5,0">
+                    <StackPanel Margin="0,0,50,0">
                         <TextBlock Text="Price change (24h)" FontSize="16" Foreground="White"/>
-                        <TextBlock Text="{Binding Currency.PriceChange24H, Converter={StaticResource NumberConverter}}" 
-                               FontSize="14" FontWeight="SemiBold" Foreground="Gray"/>
+                        <TextBlock Text="{Binding Currency.PriceChange24H, 
+                        Converter={StaticResource NumberConverter}}" 
+                                   FontSize="14" FontWeight="SemiBold" Foreground="Gray"/>
                     </StackPanel>
-                    <StackPanel Margin="0,0,5,0">
+                    <StackPanel Margin="0,0,50,0">
+                        <TextBlock Text="Price change (%)" FontSize="16" Foreground="White"/>
+                        <TextBlock Text="{Binding Currency.PriceChangePercentage24H, StringFormat={}{0:#0.00'%'}}" 
+                                   FontSize="14" FontWeight="SemiBold" Foreground="Gray"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,50,0">
                         <TextBlock Text="Volume" FontSize="16" Foreground="White"/>
-                        <TextBlock Text="{Binding Currency.TotalVolume, Converter={StaticResource NumberConverter}}" 
-                               FontSize="14" FontWeight="SemiBold" Foreground="Gray"/>
+                        <TextBlock Text="{Binding Currency.TotalVolume, 
+                                    Converter={StaticResource NumberConverter}}" 
+                                   FontSize="14" FontWeight="SemiBold" Foreground="Gray"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
-            <Button Content="Convert" Style="{StaticResource ConvertButton}" Margin="5,0,0,0"/>
         </StackPanel>
+        
+        <Button Grid.Column="1" Grid.Row="0" Content="Convert" Style="{StaticResource ConvertButton}" />
 
         <!-- Chart Section -->
-        <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource HoverGrayBrush}" CornerRadius="10" Margin="10">
+        <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource HoverGrayBrush}" 
+                CornerRadius="10" Margin="10">
             <lvc:CartesianChart Series="{Binding PriceChangeSeries}"
                                 XAxes="{Binding XAxes}"
                                 YAxes="{Binding YAxes}"
@@ -54,24 +63,37 @@
         </Border>
 
         <!-- Market Data Section -->
-        <Border Grid.Column="1" Grid.Row="1" Background="{StaticResource HoverGrayBrush}" CornerRadius="10" Margin="10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Label Content="Best markets:" FontSize="22" Foreground="White" Margin="10,10,10,10"/>
-                <DataGrid Grid.Row="1" Background="Transparent" ItemsSource="{Binding Markets}"
-                          Foreground="White" HeadersVisibility="None">
-                    <DataGrid.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="Width" Value="Auto"></Setter>
-                            <Setter Property="Border.BorderThickness" Value="1"/>
-                            <Setter Property="Border.BorderBrush" Value="LightGray"/>
-                        </Style>
-                    </DataGrid.CellStyle>
-                </DataGrid>
-            </Grid>
+        <Border Grid.Column="1" Grid.Row="1" Background="{StaticResource HoverGrayBrush}" 
+                CornerRadius="10" Margin="10">
+            <StackPanel>
+                <!-- Header -->
+                <Label Content="Best markets" FontSize="22" Foreground="White" 
+                       HorizontalContentAlignment="Left"
+                       VerticalContentAlignment="Bottom"
+                       Margin="0,5,0,0"/>
+
+                <!-- Markets list -->
+                <ItemsControl ItemsSource="{Binding Markets}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="Transparent" CornerRadius="5" Margin="5"
+                                    BorderThickness="1" BorderBrush="Gray">
+                                <StackPanel Margin="10">
+                                    <!-- Market name -->
+                                    <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="SemiBold"
+                                               Foreground="White"/>
+                                    <!-- Base/Target -->
+                                    <TextBlock>
+                                        <Run Text="{Binding Base}" Foreground="Gray" FontWeight="Bold"/>
+                                        <Run Text="/" Foreground="Gray"/>
+                                        <Run Text="{Binding Target}" Foreground="Gray" FontWeight="Bold"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </Border>
     </Grid>
 </Page>

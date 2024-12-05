@@ -20,6 +20,7 @@ namespace CryptifyAPI.Models
 		public double Low24H { get; set; }
 		[JsonPropertyName("price_change_24h")]
 		public double PriceChange24H { get; set; }
+		[JsonPropertyName("price_change_percentage_24h")]
 		public double PriceChangePercentage24H { get; set; }
 		public double MarketCapChange24H { get; set; }
 		public double MarketCapChangePercentage24H { get; set; }

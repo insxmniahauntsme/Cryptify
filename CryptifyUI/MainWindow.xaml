@@ -3,11 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Cryptify"
         xmlns:commands="clr-namespace:Cryptify.Commands"
+        xmlns:viewModels="clr-namespace:Cryptify.ViewModels"
         mc:Ignorable="d"
         Height="600" Width="1000"
-        WindowStyle="None"    
+        WindowStyle="None"
         AllowsTransparency="True"
         BorderBrush="{StaticResource BackgroundBrush}" 
         BorderThickness="1"
@@ -28,25 +28,52 @@
                     <Label Foreground="Gray" 
                            FontWeight="SemiBold" Content="Cryptify" VerticalAlignment="Center"/>
                     <Button Style="{StaticResource NavigationButtons}" Content="←" FontSize="16"
-                            Click="GoBack"/>
+                            Command="{Binding GoBackCommand}"/>
                     <Button Style="{StaticResource NavigationButtons}" Content="→" FontSize="16"
-                            Click="GoForward"/>
-                         
+                            Command="{Binding GoForwardCommand}"/>
                 </StackPanel>
+                
+                <Border Width="300"
+                        Height="Auto"
+                        VerticalAlignment="Center"
+                        Margin="5"
+                        CornerRadius="10"
+                        HorizontalAlignment="Center">
+                    <StackPanel>
+                        <TextBox VerticalContentAlignment="Center"
+                                 Background="{StaticResource HoverGrayBrush}"
+                                 Foreground="White"
+                                 Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"/>
+        
+                        <ListBox ItemsSource="{Binding FilteredCurrencies}"
+                                 Background="{StaticResource HoverGrayBrush}"
+                                 Foreground="White"
+                                 BorderThickness="0"
+                                 Margin="0,10,0,0"
+                                 SelectedItem="{Binding SelectedCurrency}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Padding="5"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+                
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
-                        <!-- Minimize Button -->
+                    <!-- Minimize Button -->
                     <Button Margin="0,5,0,0"
                             Style="{StaticResource WindowControlButtons}" Content="–" 
                             Command="{x:Static commands:WindowCommands.MinimizeCommand}"
                             CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
                 
-                        <!-- Restore/Maximize Button -->
+                    <!-- Restore/Maximize Button -->
                     <Button Margin="0,5,0,2"
                             Style="{StaticResource WindowControlButtons}" Content="□" 
                             Command="{x:Static commands:WindowCommands.ToggleMaximizeCommand}"
                             CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
                 
-                        <!-- Close Button -->
+                    <!-- Close Button -->
                     <Button Margin="0,5,7,0"
                             Style="{StaticResource CloseButton}" Content="╳" 
                             Command="{x:Static commands:WindowCommands.CloseCommand}"

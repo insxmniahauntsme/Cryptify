@@ -13,14 +13,16 @@ namespace Cryptify.Converters
 
 			double number = System.Convert.ToDouble(value, CultureInfo.InvariantCulture);
 
-			if (number >= 1_000_000_000_000)
+			if (Math.Abs(number) >= 1_000_000_000_000)
 				return $"${number / 1_000_000_000_000:0.#}T";
-			if (number >= 1_000_000_000) 
+			if (Math.Abs(number) >= 1_000_000_000) 
 				return $"${number / 1_000_000_000:0.#}B";
-			if (number >= 1_000_000)
+			if (Math.Abs(number) >= 1_000_000)
 				return $"${number / 1_000_000:0.#}M";
-			if (number >= 1_000) 
+			if (Math.Abs(number) >= 1_000) 
 				return $"${number / 1_000:0.#}K";
+			if (Math.Abs(number) <= 1)
+				return $"${number / 1:0.###}";
 
 			return $"${number:0.#}";
 		}

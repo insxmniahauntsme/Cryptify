@@ -43,14 +43,14 @@ namespace Cryptify.ViewModels
 			}
 		}
 		
-		private void OnCurrencyClick(object selectedCurrency)
+		private async void OnCurrencyClick(object selectedCurrency)
 		{
 			var currency = (Currency)selectedCurrency;
 
 			var detailsViewModel = _serviceProvider.GetRequiredService<CurrencyDetailsPageViewModel>();
 
 			detailsViewModel.Currency = currency;
-
+			detailsViewModel.Markets = await detailsViewModel._cryptocurrencyService.GetTopMarketsAsync(currency.Id);
 			var detailsPage = new CurrencyDetailsPage(detailsViewModel);
     
 			detailsPage.DataContext = detailsViewModel;
