@@ -4,84 +4,98 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:commands="clr-namespace:Cryptify.Commands"
-        xmlns:viewModels="clr-namespace:Cryptify.ViewModels"
+        xmlns:converters="clr-namespace:Cryptify.Converters"
         mc:Ignorable="d"
         Height="600" Width="1000"
         WindowStyle="None"
         AllowsTransparency="True"
-        BorderBrush="{StaticResource BackgroundBrush}" 
-        BorderThickness="1"
         Background="{StaticResource BackgroundBrush}"
         ResizeMode="CanResize"
         MouseLeftButtonDown="DragWindow">
+    <Window.Resources>
+        <converters:NullOrEmptyToVisibilityConverter x:Key="VisibilityConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/> 
-            <RowDefinition Height="*"/> 
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
         <!-- Window Control Buttons -->
-        <Border Grid.ColumnSpan="2" Background="{StaticResource BorderBrush}" >
+        <Border Grid.ColumnSpan="2" Background="{StaticResource BorderBrush}">
             <Grid HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
-                    <Image x:Name="Logo" Source="/Resources/cryptify-logo.png" Width="30" Height="30" 
-                           Margin="0,0,5,0"/>
-                    <Label Foreground="Gray" 
-                           FontWeight="SemiBold" Content="Cryptify" VerticalAlignment="Center"/>
+                    <Image x:Name="Logo" Source="/Resources/cryptify-logo.png" Width="30" Height="30" Margin="0,0,5,0"/>
+                    <Label Foreground="Gray" FontWeight="SemiBold" Content="Cryptify" VerticalAlignment="Center"/>
                     <Button Style="{StaticResource NavigationButtons}" Content="←" FontSize="16"
                             Command="{Binding GoBackCommand}"/>
                     <Button Style="{StaticResource NavigationButtons}" Content="→" FontSize="16"
                             Command="{Binding GoForwardCommand}"/>
                 </StackPanel>
-                
-                <Border Width="300"
-                        Height="Auto"
-                        VerticalAlignment="Center"
-                        Margin="5"
-                        CornerRadius="10"
-                        HorizontalAlignment="Center">
-                    <StackPanel>
-                        <TextBox VerticalContentAlignment="Center"
+
+                <!-- Search Bar and Popup -->
+                <Border Width="300" VerticalAlignment="Center" CornerRadius="10" HorizontalAlignment="Center" Background="Transparent" Margin="5">
+                    <Grid>
+                        <!-- Search TextBox -->
+                        <TextBox x:Name="SearchTextBox"
+                                 VerticalContentAlignment="Top"
                                  Background="{StaticResource HoverGrayBrush}"
                                  Foreground="White"
-                                 Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"/>
-        
-                        <ListBox ItemsSource="{Binding FilteredCurrencies}"
-                                 Background="{StaticResource HoverGrayBrush}"
-                                 Foreground="White"
-                                 BorderThickness="0"
-                                 Margin="0,10,0,0"
-                                 SelectedItem="{Binding SelectedCurrency}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" Padding="5"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </StackPanel>
+                                 Width="Auto"
+                                 Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,0,0"/>
+
+                        <!-- Popup for Search Results -->
+                        <Popup IsOpen="{Binding SearchResults, 
+                               Converter={StaticResource VisibilityConverter}, Mode=OneWay}"
+                               Width="400"
+                               Placement="Bottom"
+                               HorizontalOffset="-50"
+                               VerticalOffset="10"
+                               PlacementTarget="{Binding ElementName=SearchTextBox}"
+                               StaysOpen="False">
+                            <Border Background="#424247"
+                                    BorderBrush="Gray"
+                                    BorderThickness="0"
+                                    Padding="5">
+                                <ListBox ItemsSource="{Binding SearchResults}"
+                                         Foreground="White"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         MaxHeight="200"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#2A2D34" BorderBrush="#444444" 
+                                                    BorderThickness="1" Padding="3" Margin="2"
+                                                    HorizontalAlignment="Stretch">
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" 
+                                                           Foreground="White" Width="Auto" FontSize="12"
+                                                           HorizontalAlignment="Stretch"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                        </Popup>
+                    </Grid>
                 </Border>
-                
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <!-- Minimize Button -->
-                    <Button Margin="0,5,0,0"
-                            Style="{StaticResource WindowControlButtons}" Content="–" 
+                    <Button Margin="0,5,0,0" Style="{StaticResource WindowControlButtons}" Content="–"
                             Command="{x:Static commands:WindowCommands.MinimizeCommand}"
                             CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
-                
-                    <!-- Restore/Maximize Button -->
-                    <Button Margin="0,5,0,2"
-                            Style="{StaticResource WindowControlButtons}" Content="□" 
+                    <Button Margin="0,5,0,2" Style="{StaticResource WindowControlButtons}" Content="□"
                             Command="{x:Static commands:WindowCommands.ToggleMaximizeCommand}"
                             CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
-                
-                    <!-- Close Button -->
-                    <Button Margin="0,5,7,0"
-                            Style="{StaticResource CloseButton}" Content="╳" 
+                    <Button Margin="0,5,7,0" Style="{StaticResource CloseButton}" Content="╳"
                             Command="{x:Static commands:WindowCommands.CloseCommand}"
                             CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <Frame Grid.Row="1" x:Name="MainFrame" NavigationUIVisibility="Hidden" Background="{StaticResource BackgroundBrush}"/>
-    </Grid>  
+        <Frame Grid.Row="1" x:Name="MainFrame" NavigationUIVisibility="Hidden" Background="Transparent"/>
+    </Grid>
 </Window>

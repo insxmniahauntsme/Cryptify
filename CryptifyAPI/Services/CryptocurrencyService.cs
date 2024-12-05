@@ -17,7 +17,8 @@ namespace CryptifyAPI.Services
         public async Task<List<Currency>> GetTopTenCurrenciesAsync()
         {
             var client = _httpClientFactory.CreateClient("CoinGeckoClient");
-            var response = await GetApiResponseAsync(client, "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
+            var response = await GetApiResponseAsync(client, 
+                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
 
             if (!response.IsSuccessStatusCode)
                 return new List<Currency>();
@@ -26,10 +27,23 @@ namespace CryptifyAPI.Services
             return currencies?.OrderByDescending(c => c.CurrentPrice).ToList() ?? new List<Currency>();
         }
 
+        public async Task<List<Currency>> GetAllCurrenciesAsync()
+        {
+            var client = _httpClientFactory.CreateClient("CoinGeckoClient");
+            var response = await GetApiResponseAsync(client,
+                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1");
+            
+            if (!response.IsSuccessStatusCode)
+                return new List<Currency>();
+            
+            var currencies = await DeserializeJsonAsync<List<Currency>>(response.Content);
+            return currencies?.ToList() ?? new List<Currency>();
+        }
+
         public async Task<List<Market>> GetTopMarketsAsync(string currencyId)
         {
             var baseUrl = "https://api.coingecko.com/api/v3/coins";
-            var endpoint = $"{baseUrl}/{currencyId}/tickers?per_page=6&page=1";
+            var endpoint = $"{baseUrl}/{currencyId}/tickers";
 
             var response = await GetApiResponseAsync(new HttpClient(), endpoint);
 
@@ -49,9 +63,9 @@ namespace CryptifyAPI.Services
             }).OrderByDescending(m => m.Price).ToList();
         }
 
-        public async Task<Currency> GetCurrencyAsync(string currencyId)
+        public async Task<Dictionary<string, int>> GetChartDataAsync(string currencyId)
         {
-            return new Currency();
+            var baseUrl = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1";
         }
 
         private async Task<HttpResponseMessage> GetApiResponseAsync(HttpClient client, string url)

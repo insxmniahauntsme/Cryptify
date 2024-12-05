@@ -1,72 +1,129 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Input;
 using Cryptify.Commands;
 using Cryptify.Services;
+using Cryptify.Views;
+using CryptifyAPI.Models;
 using CryptifyAPI.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cryptify.ViewModels
 {
-	public class MainWindowViewModel : INotifyPropertyChanged
-	{
-		private readonly INavigationService _navigationService;
-		private readonly ICryptocurrencyService _cryptocurrencyService;
-		private string? _searchQuery;
+    public class MainWindowViewModel : INotifyPropertyChanged
+    {
+        private readonly INavigationService _navigationService;
+        private readonly ICryptocurrencyService _cryptocurrencyService;
+        private readonly IServiceProvider _serviceProvider;
 
-		public string? SearchQuery
-		{
-			get => _searchQuery;
-			set
-			{
-				if (_searchQuery != value && value != null)
-				{
-					_searchQuery = value;
-					OnPropertyChanged();
+        private List<Currency> _currencies = new();
+        private List<Currency>? _searchResults;
+        public List<Currency>? SearchResults
+        {
+            get => _searchResults;
+            set
+            {
+                _searchResults = value;
+                OnPropertyChanged();
+            }
+        }
 
-					PerformSearch(_searchQuery);
-				}
-			}
-		}
-		
-		public MainWindowViewModel(INavigationService navigationService, ICryptocurrencyService cryptocurrencyService)
-		{
-			_navigationService = navigationService;
-			_cryptocurrencyService = cryptocurrencyService;
-			PerformSearchCommand = new RelayCommand(_ => PerformSearch(_searchQuery));
-			GoBackCommand = new RelayCommand(_ => GoBack());
-			GoForwardCommand = new RelayCommand(_ => GoForward());
-		}
+        private string? _searchQuery;
+        public string? SearchQuery
+        {
+            get => _searchQuery;
+            set
+            {
+                if (_searchQuery != value)
+                {
+                    _searchQuery = value;
+                    OnPropertyChanged();
 
+                    if (!string.IsNullOrWhiteSpace(_searchQuery) && _searchQuery.Length >= 2)
+                    {
+                        PerformSearch(_searchQuery);
+                    }
+                    else
+                    {
+                        SearchResults = null; // Close popup by setting results to null
+                    }
+                }
+            }
+        }
 
-		public ICommand PerformSearchCommand { get; }
-		public ICommand GoBackCommand { get; }
-		public ICommand GoForwardCommand { get; }
+        private Currency? _selectedCurrency;
+        public Currency? SelectedCurrency
+        {
+            get => _selectedCurrency;
+            set
+            {
+                _selectedCurrency = value;
+                OnPropertyChanged();
+                if (_selectedCurrency != null)
+                {
+                    NavigateToCurrencyDetails(_selectedCurrency);
+                }
+            }
+        }
 
+        public ICommand GoBackCommand { get; }
+        public ICommand GoForwardCommand { get; }
 
-		private async void PerformSearch(string query)
-		{
-			
-		}
-		
-		private void GoBack()
-		{
-			_navigationService.GoBack();
-		}
+        public MainWindowViewModel(INavigationService navigationService, ICryptocurrencyService cryptocurrencyService, IServiceProvider serviceProvider)
+        {
+            _navigationService = navigationService;
+            _cryptocurrencyService = cryptocurrencyService;
+            _serviceProvider = serviceProvider;
+            GoBackCommand = new RelayCommand(_ => GoBack());
+            GoForwardCommand = new RelayCommand(_ => GoForward());
+            LoadAllCurrencies();
+        }
 
-		private void GoForward()
-		{
-			_navigationService.GoForward();
-		}
+        private async void LoadAllCurrencies()
+        {
+            _currencies = await _cryptocurrencyService.GetAllCurrenciesAsync();
+        }
 
-		public event PropertyChangedEventHandler? PropertyChanged;
+        private void PerformSearch(string query)
+        {
+            var currencies = _currencies
+                .Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
+                            || c.Id.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
 
-		protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
+            SearchResults = currencies;
+        }
 
+        private async void NavigateToCurrencyDetails(Currency selectedCurrency)
+        {
+            var detailsViewModel = _serviceProvider.GetRequiredService<CurrencyDetailsPageViewModel>();
 
-	}
+            detailsViewModel.Currency = selectedCurrency;
+            detailsViewModel.Markets = await detailsViewModel._cryptocurrencyService.GetTopMarketsAsync(selectedCurrency.Id);
+            var detailsPage = new CurrencyDetailsPage(detailsViewModel);
+
+            detailsPage.DataContext = detailsViewModel;
+
+            _navigationService.NavigateTo(detailsPage);
+        }
+
+        private void GoBack()
+        {
+            _navigationService.GoBack();
+        }
+
+        private void GoForward()
+        {
+            _navigationService.GoForward();
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
 }
