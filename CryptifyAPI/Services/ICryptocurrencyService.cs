@@ -7,7 +7,6 @@ public interface ICryptocurrencyService
 	Task<List<Currency>> GetTopTenCurrenciesAsync();
 	Task<List<Currency>> GetAllCurrenciesAsync();
 	Task<List<Market>> GetTopMarketsAsync(string currencyId);
-	Task<Currency> GetCurrencyAsync(string currencyId);
-	
-	
+	Task<List<ChartPoint>> GetChartDataAsync(string currencyId);
+
 }

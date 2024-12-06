@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using Cryptify.Commands;
 using Cryptify.Services;
 using CryptifyAPI.Models;
 using CryptifyAPI.Services;
@@ -27,12 +26,12 @@ namespace Cryptify.ViewModels
             _serviceProvider = serviceProvider;
             _navigationProvider = navigationService;
             _cryptocurrencyService = cryptocurrencyService;
-            Currency = new();
-            Markets = new();
+            Currency = new Currency();
+            Markets = new List<Market>();
 
             InitializeChart();
         }
-
+        
         private void InitializeChart()
         {
             double low24H = 93213;
@@ -94,5 +93,42 @@ namespace Cryptify.ViewModels
 
             return data.OrderBy(p => p).ToList(); 
         }
+        // was trying to implement that but have faced a failure(
+        /*private async Task InitializeChartAsync()
+        {
+            var chartData = await _cryptocurrencyService.GetChartDataAsync(Currency.Id);
+            var chartPoints = chartData.Select(data =>
+                new ChartPoint(
+                    data.Price,    
+                    data.Time                
+                )).ToList();
+
+            var priceSeries = new LineSeries<ChartPoint>
+            {
+                Values = new ObservableCollection<ChartPoint>(chartPoints),
+                LineSmoothness = 0.75  
+            };
+
+            PriceChangeSeries.Clear();
+            PriceChangeSeries.Add(priceSeries);
+
+            XAxes = new[]
+            {
+                new Axis
+                {
+                    Labeler = value => DateTimeOffset.FromUnixTimeMilliseconds((long)value).DateTime.ToString("HH:mm"),
+                    Name = "Time"
+                }
+            };
+
+            YAxes = new[]
+            {
+                new Axis
+                {
+                    Labeler = value => $"{value:C}", 
+                    Name = "Price (USD)"
+                }
+            };
+        }*/
     }
 }

@@ -63,10 +63,38 @@ namespace CryptifyAPI.Services
             }).OrderByDescending(m => m.Price).ToList();
         }
 
-        public async Task<Dictionary<string, int>> GetChartDataAsync(string currencyId)
+        public async Task<List<ChartPoint>> GetChartDataAsync(string currencyId)
         {
-            var baseUrl = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1";
+            var baseUrl = $"https://api.coingecko.com/api/v3/coins/{currencyId}/ohlc?vs_currency=usd&days=1";
+            var client = _httpClientFactory.CreateClient("CoinGeckoClient");
+            var response = await GetApiResponseAsync(client, baseUrl);
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Failed to fetch chart data.");
+
+            var data = await DeserializeJsonAsync<JsonDocument>(response.Content);
+            var pricesArray = data.RootElement.GetProperty("prices").EnumerateArray();
+
+            var chartData = new List<ChartPoint>();
+
+            foreach (var item in pricesArray)
+            {
+                var timestamp = item[0].GetInt64();
+                var price = item[1].GetDecimal();
+
+                var dateTime = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).UtcDateTime;
+
+                chartData.Add(new ChartPoint(price, dateTime));
+            }
+
+            foreach (var item in chartData)
+            {
+                Console.WriteLine(item.Time);
+            }
+            
+            return chartData;
         }
+
 
         private async Task<HttpResponseMessage> GetApiResponseAsync(HttpClient client, string url)
         {
